@@ -36,6 +36,34 @@ assert cf
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
 los mismos.
 """
+def newCatalog():
+    catalog = {'artist': None,
+               'artworks': None,
+               'Medium': None}
+
+    catalog['artist'] = lt.newList('SINGLE_LINKED')
+    catalog['artworks'] = lt.newList('SINGLE_LINKED')
+    catalog['Medium'] = mp.newMap(10000,
+                                  maptype='CHAINING',
+                                  loadfactor = 4.,
+                                  comparefunction= CompareMediums)
+
+    return catalog
+
+def addArtWork(catalog, artwork):
+    lt.addLast(catalog['artworks'],artwork)
+    mp.put(catalog['Medium'], artwork['Medium'], artwork)
+    medium1 = artwork['Medium']
+    addMedium(catalog, medium1, artwork)
+
+def addArtist(catalog, artist):
+    lt.addLast(catalog['artist'],artist)
+
+def addMedium(catalog, medium, artwork):
+    mediums = catalog['Medium']
+    entry = mp.get(mediums, medium)
+    obra = me.getValue(entry)
+    mp.put(artwork['Medium'],medium, obra)
 
 # Construccion de modelos
 
@@ -44,7 +72,19 @@ los mismos.
 # Funciones para creacion de datos
 
 # Funciones de consulta
+def getOldestWorksByMedium(catalog, medium):
+    mediums = mp.get(catalog['Medium'], medium)
+    if mediums:
+        return mediums
+    return None
 
 # Funciones utilizadas para comparar elementos dentro de una lista
-
+def CompareMediums(medium, entry):
+    authentry = me.getKey(entry)
+    if authentry == medium:
+        return 0
+    elif (medium > authentry):
+        return 1
+    else:
+        return -1
 # Funciones de ordenamiento

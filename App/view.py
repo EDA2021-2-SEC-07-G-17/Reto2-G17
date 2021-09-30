@@ -20,12 +20,16 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+
+from model import getOldestWorksByMedium
 import config as cf
 import sys
-import controller
 from DISClib.ADT import list as lt
+from DISClib.ADT import map as mp
+import controller
 assert cf
-
+default_limit = 1000
+sys.setrecursionlimit(default_limit*10)
 
 """
 La vista se encarga de la interacción con el usuario
@@ -34,13 +38,27 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 
+
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
-
+    print("2- Listar cronologicamente a los artistas")
+    print("3- Listar cronologicamente las adquisiciones")
+    print("4- Clasificar las obras de un artista por tecnica")
+    print("5- Clasificar las obras por la nacionalidad de sus creadores")
+    print("6- Transportar obras de un departamento")
+    print("7- Encontrar los artistas mas prolificos del museo")
 catalog = None
 
+def initCatalog():
+
+    return controller.initCatalog()
+
+def loadData(catalog):
+    """
+    Carga los libros en la estructura de datos
+    """
+    controller.loadData(catalog)
 """
 Menu principal
 """
@@ -49,7 +67,12 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
-
+        catalog = initCatalog()
+        loadData(catalog)
+        print('obras de arte cargadas: ' + str(lt.size(catalog['artworks'])))
+        print('artistas cargados: ' + str(lt.size(catalog['artist'])))
+        x = getOldestWorksByMedium(catalog, 'Woodcut')
+        print(x)
     elif int(inputs[0]) == 2:
         pass
 
