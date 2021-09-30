@@ -21,6 +21,8 @@
  """
 
 
+
+from model import newMedium
 from model import getOldestWorksByMedium
 import config as cf
 import sys
@@ -72,6 +74,7 @@ while True:
         print('obras de arte cargadas: ' + str(lt.size(catalog['artworks'])))
         print('artistas cargados: ' + str(lt.size(catalog['artist'])))
         x = getOldestWorksByMedium(catalog, 'Woodcut')
+        y = newMedium('Woodcut')
         print(x)
     elif int(inputs[0]) == 2:
         pass

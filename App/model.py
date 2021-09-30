@@ -53,17 +53,33 @@ def newCatalog():
 def addArtWork(catalog, artwork):
     lt.addLast(catalog['artworks'],artwork)
     mp.put(catalog['Medium'], artwork['Medium'], artwork)
-    medium1 = artwork['Medium']
-    addMedium(catalog, medium1, artwork)
+    addMedium(catalog, artwork)
+
 
 def addArtist(catalog, artist):
     lt.addLast(catalog['artist'],artist)
 
-def addMedium(catalog, medium, artwork):
-    mediums = catalog['Medium']
-    entry = mp.get(mediums, medium)
-    obra = me.getValue(entry)
-    mp.put(artwork['Medium'],medium, obra)
+def addMedium(catalog, artwork):
+    try:
+        mediums = catalog['Medium']
+        medium1 = artwork['Medium']
+        existmedium = mp.contains(mediums, medium1)
+        if existmedium:
+            entry = mp.get(mediums, medium1)
+            medium2 = me.getValue(entry)
+        else:
+            medium2 = newMedium(medium1)
+            mp.put(mediums, medium1, medium2)
+        lt.addLast(medium2['Medium'],artwork)
+    except Exception:
+        return None
+
+def newMedium(medium):
+    entry = {'Medium':"", 'artworks': None}
+    entry['Medium'] = medium
+    entry['artworks'] = lt.newList('SINGLE_LINKED', CompareMediums)
+    return entry
+
 
 # Construccion de modelos
 
@@ -75,7 +91,7 @@ def addMedium(catalog, medium, artwork):
 def getOldestWorksByMedium(catalog, medium):
     mediums = mp.get(catalog['Medium'], medium)
     if mediums:
-        return mediums
+        return me.getValue(mediums)
     return None
 
 # Funciones utilizadas para comparar elementos dentro de una lista
