@@ -52,8 +52,13 @@ def newCatalog():
 
 def addArtWork(catalog, artwork):
     lt.addLast(catalog['artworks'],artwork)
-    mp.put(catalog['Medium'], artwork['Medium'], artwork)
-    addMedium(catalog, artwork)
+    obra = mp.get(catalog['Medium'], artwork['Medium'])
+    if obra:
+        lt.addLast(me.getValue(obra),artwork)
+    else:
+        nuevasObras = lt.newList()
+        mp.put(catalog['Medium'],artwork['Medium'],nuevasObras)
+
 
 
 def addArtist(catalog, artist):

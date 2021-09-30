@@ -44,7 +44,7 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- Listar cronologicamente a los artistas")
+    print("2- Requisito lab5")
     print("3- Listar cronologicamente las adquisiciones")
     print("4- Clasificar las obras de un artista por tecnica")
     print("5- Clasificar las obras por la nacionalidad de sus creadores")
@@ -73,10 +73,9 @@ while True:
         loadData(catalog)
         print('obras de arte cargadas: ' + str(lt.size(catalog['artworks'])))
         print('artistas cargados: ' + str(lt.size(catalog['artist'])))
-        x = getOldestWorksByMedium(catalog, 'Woodcut')
-        y = newMedium('Woodcut')
-        print(x)
     elif int(inputs[0]) == 2:
+        input = input('Ingrese el medio')
+        print(getOldestWorksByMedium(catalog, input))
         pass
 
     else:
