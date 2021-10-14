@@ -22,16 +22,13 @@
 
 
 
-from model import newMedium
-from model import getOldestWorksByMedium
 import config as cf
 import sys
-from DISClib.ADT import list as lt
-from DISClib.ADT import map as mp
 import controller
+from DISClib.ADT import list as lt
 assert cf
-default_limit = 1000
-sys.setrecursionlimit(default_limit*10)
+from DISClib.ADT import map as mp
+
 
 """
 La vista se encarga de la interacción con el usuario
@@ -41,26 +38,43 @@ operación solicitada
 """
 
 
+# FUNCIONES PARA LA IMPRESIÓN DE RESULTADOS
+
+def rangoartista(retorno, anio1, anio2):
+    size = lt.size(retorno)
+    print("\nLa cantidad de artistas que nacieron entre " + str(anio1) + " y "
+        + str(anio2) + " es: " + str(size))
+    print("Muestra de los artistas nacidos en este rango: ")
+    if size:
+        i = 1
+        nw = lt.newList()
+        while i <= 3:
+            lt.addLast(nw, lt.getElement(retorno, i))
+            i += 1
+        i = size - 2
+        while i <= size:
+            lt.addLast(nw, lt.getElement(retorno, i))
+            i += 1
+        for x in lt.iterator(nw):
+            print("\n Nombre: " + x["DisplayName"] + "\n Año de Nacimiento: " + x["BeginDate"] + 
+                "\n Año de Fallecimiento: " + x["EndDate"] + "\n Nacionalidad: " + x["Nationality"]
+                + "\n Género: " + x["Gender"] + "\n")
+    else:
+        print("No se encontraron artistas en este rango de fechas")
+
+
+
+
 def printMenu():
-    print("Bienvenido")
-    print("1- Cargar información en el catálogo")
-    print("2- Requisito lab5")
-    print("3- Listar cronologicamente las adquisiciones")
-    print("4- Clasificar las obras de un artista por tecnica")
-    print("5- Clasificar las obras por la nacionalidad de sus creadores")
-    print("6- Transportar obras de un departamento")
-    print("7- Encontrar los artistas mas prolificos del museo")
+    print("\nBienvenido")
+    print("1- Inicializar el catálogo")
+    print("2- Cargar información en el catálogo")
+    print("3- Buscar a los autores nacidos en un rango de años")
+    print("Lab 6 \n4- Contar el número total de obras de una Nacionalidad")
+    print("0- Salir")
+
 catalog = None
 
-def initCatalog():
-
-    return controller.initCatalog()
-
-def loadData(catalog):
-    """
-    Carga los libros en la estructura de datos
-    """
-    controller.loadData(catalog)
 """
 Menu principal
 """
@@ -68,16 +82,36 @@ while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
-        print("Cargando información de los archivos ....")
-        catalog = initCatalog()
-        loadData(catalog)
-        print('obras de arte cargadas: ' + str(lt.size(catalog['artworks'])))
-        print('artistas cargados: ' + str(lt.size(catalog['artist'])))
-    elif int(inputs[0]) == 2:
-        input = input('Ingrese el medio')
-        print(getOldestWorksByMedium(catalog, input))
-        pass
+        print("Inicializando Catálogo ....")
+        catalog = controller.initCatalog()
 
+    elif int(inputs[0]) == 2:
+        print("Cargando información de los archivos ....")
+        controller.loadData(catalog)
+        print("\nTotal obras Cargadas: " + str(lt.size(catalog["artworks"])))
+        print("Total artistas Cargados: " + str(lt.size(catalog["artists"])))
+        print("Total años Cargados: " + str(mp.size(catalog["artistDate"])))
+        print("Total técnicas Cargadas: " + str(mp.size(catalog["medios"])))
+        print("Total C ids caragados: " + str(mp.size(catalog["Cids"])))
+        print("Total Nacionalidades cargadas: " + str(mp.size(catalog["nacionalidad"])))
+
+    elif int(inputs[0]) == 3:
+        inicial = int(input("Ingrese el año inicial a consultar: \n"))
+        final = int(input("Ingrese el año final a consultar: \n"))
+        resultado  = controller.cronartist(catalog, inicial, final)
+        rangoartista(resultado, inicial, final)
+        
+    elif int(inputs[0]) == 4:
+        nacionalidad = input("Ingrese la nacionalidad a consultar: \n")
+        if mp.contains(catalog["nacionalidad"], nacionalidad):
+            total = mp.get(catalog["nacionalidad"], nacionalidad)['value']
+            size = lt.size(total)
+            print("La cantidad de obras de la nacionalidad " + nacionalidad + 
+                    ": " + str(size))
+        else:
+            print("No se encontró dicha nacionalidad")
+        
     else:
+        print("Cerrando aplicación... ")
         sys.exit(0)
 sys.exit(0)

@@ -1,6 +1,6 @@
-Mateo Lopez Cespedes - 202014481 - m.lopez23@uniandes.edu.co->Req 4
+Jaime Alfonso Ruiz- 202116525 - j.alfonsor@uniandes.edu.co
 
-Sebastian Casanova - 202115116 - s.casanovao@uniandes.edu.co->Req 3
+Sebastian Casanova - 202115116 - s.casanovao@uniandes.edu.co
 
 #ISIS1225 - Librerias de soporte
 
