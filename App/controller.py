@@ -49,6 +49,7 @@ def loadArtworks(catalog):
     input_file = csv.DictReader(open(artfile, encoding='utf-8'))
     for obra in input_file:
         model.AddArtworks(catalog, obra)
+        model.AddArtworksMap(catalog, obra)
 
 def loadArtists(catalog):
     """
@@ -59,6 +60,7 @@ def loadArtists(catalog):
     input_file = csv.DictReader(open(artfile, encoding='utf-8'))
     for artist in input_file:
         model.AddArtists(catalog, artist)
+        model.AddArtistsMap(catalog, artist)
 
 def loaddNacionality(catalog):
     model.nacionality(catalog)

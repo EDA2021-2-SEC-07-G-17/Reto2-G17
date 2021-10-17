@@ -59,16 +59,28 @@ def newCatalog():
                'artists': None,
                'Cids': None,
                'artistDate': None,
-               'nacionalidad': None}
+               'nacionalidad': None,
+               'artistsMap': None,
+               'artworksMap': None}
 
     catalog['artworks'] = lt.newList('SINGLE_LINKED', compareObjectIds)
-
+    
+    catalog['artworksMap'] = mp.newMap(numelements=147000,
+                                    maptype='CHAINING',
+                                    loadfactor=2.0,
+                                    comparefunction=compareID)
+    
     catalog['medios'] = mp.newMap(138112,
-                                   maptype='PROBING',
-                                   loadfactor=0.80,
+                                   maptype='CHAINING',
+                                   loadfactor=2.0,
                                    comparefunction=compareMedium)
 
     catalog['artists'] = lt.newList('SINGLE_LINKED', compareConstituentsID)
+
+    catalog['artistsMap'] = mp.newMap(numelements=16000,
+                                    maptype="CHAINING",
+                                    loadfactor=2.0,
+                                    comparefunction=compareID)
 
     catalog['artistDate'] = mp.newMap(15300,
                                    maptype='CHAINING',
@@ -76,8 +88,8 @@ def newCatalog():
                                    comparefunction=compareyear)
 
     catalog['nacionalidad'] = mp.newMap(100000, 
-                                    maptype='PROBING',
-                                    loadfactor=0.80,
+                                    maptype='CHAINING',
+                                    loadfactor=2.0,
                                     comparefunction=compareyear)
 
     catalog['Cids'] = mp.newMap(15300,
@@ -94,11 +106,16 @@ def AddArtworks(catalog, artwork):
     lt.addLast(catalog['artworks'], artwork)
     addnacionality(catalog, artwork)
 
+def AddArtworksMap(catalog, artworkm):
+    mp.put(catalog['artworksMap'], artworkm['ObjectID'], artworkm)
 
 def AddArtists(catalog, artist):
-    lt.addLast(catalog['artists'], artist)
+    lt.addLast(catalog['artists'],artist)
     addids(catalog,artist)
     addlistyear(catalog, artist)
+
+def AddArtistsMap(catalog, artistm):
+    mp.put(catalog['artistsMap'], artistm["ConstituentID"], artistm)
 
 
 def addlistmedium(catalog):
@@ -191,7 +208,7 @@ def compareObjectIds(id1, id2):
 
 def compareConstituentsID(id1, id2):
     """
-    Compara dos Objects ids de dos obras
+    Compara dos ConstituentID de dos obras
     """
     if (id1 == id2):
         return 0
@@ -212,6 +229,12 @@ def compareMedium(medio, entry):
     else:
         return -1
 
+def compareID(medio, entry):
+    identry = me.getKey(entry)
+    if (medio == str(identry)):
+        return 0
+    else:
+        return -1
 
 def compareyear(medio, entry):
     """
