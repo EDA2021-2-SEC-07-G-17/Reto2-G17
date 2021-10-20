@@ -2,6 +2,7 @@
 import model
 import csv
 from time import process_time
+import datetime
 
 
 """
@@ -80,3 +81,22 @@ def cronartist(catalog, anio1, anio2):
     model.compareArtistsDates(catalog)
     retorno = model.cronartist(catalog, anio1, anio2)
     return retorno
+def cronartwork(catalog, inicio2, final2):
+    """if fecha1:
+        datel=fecha1.split('-')
+        inicio2=datetime.date(int(datel[0]),int(datel[1]),int(datel[2]))
+    else:
+        return(1)
+    
+    if fecha2:
+        datelst2=fecha2.split('-')
+        final2=datetime.date(int(datelst2[0]),int(datelst2[1]),int(datelst2[2]))
+    else:
+        #print('ERROR, FECHA NO VALIDA')
+        return(2)"""
+    model.compareArworksDates(catalog)
+    retorno = model.cronartwork(catalog, inicio2, final2)
+    return retorno    
+def getNacion(catalog):
+    r=model.getNacion(catalog)
+    return r    
