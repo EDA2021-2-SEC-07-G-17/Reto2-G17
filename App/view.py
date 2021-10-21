@@ -38,14 +38,57 @@ operación solicitada
 """
 
 
-# FUNCIONES PARA LA IMPRESIÓN DE RESULTADOS
+# FUNCIONES PARA LA IMPRESIÓN DE RESULTADOS        
+
+def artworksporpais(retorno):
+    print("\nLos diez paises con mas obras son: " )
+    for i in lt.iterator(retorno[0]):
+        print(i["pais"]+":  "+str(i["num"]))
+    print("Muestra de las obras del pais con mas de ellas: "+str(lt.getElement(retorno[0],1)["pais"]))    
+    nw = retorno[1]
+    nw2=retorno[2]
+    for x in lt.iterator(nw):
+            print("\n Titulo: " + x["Title"] + "\n Artista(s): " + x["ConstituentID"] + 
+                "\n Fecha: " + x["DateAcquired"] + "\n Medio: " + x["Medium"]
+                + "\n Dimensiones: " + x["Dimensions"] + "\n")
+    for x in lt.iterator(nw2):
+            print("\n Titulo: " + x["Title"] + "\n Artista(s): " + x["ConstituentID"] + 
+                "\n Fecha: " + x["DateAcquired"] + "\n Medio: " + x["Medium"]
+                + "\n Dimensiones: " + x["Dimensions"] + "\n")
+
+def rangoartworks(retorno, anio1, anio2):
+    size = lt.size(retorno)
+    print("\nLa cantidad de obras de arte adquiridas entre " + str(anio1) + " y "
+        + str(anio2) + " es: " + str(size))
+    print("Muestra de las obras adquiridas en este rango: ")
+    if size:
+        i = 1
+        nw = lt.newList()
+        while i <= 3:
+            lt.addLast(nw, lt.getElement(retorno, i))
+            i += 1
+        i = size - 2
+        while i <= size:
+            lt.addLast(nw, lt.getElement(retorno, i))
+            i += 1
+        for x in lt.iterator(nw):
+            print("\n Titulo: " + x["Title"] + "\n Artista(s): " + x["ConstituentID"] + 
+                "\n Fecha: " + x["DateAcquired"] + "\n Medio: " + x["Medium"]
+                + "\n Dimensiones: " + x["Dimensions"] + "\n")
+    else:
+        print("No se encontraron obras en este rango de fechas")
+
+# MENU
+
 def printMenu():
     print("\nBienvenido")
     print("1- Inicializar el catálogo")
     print("2- Cargar información en el catálogo")
     print("3- Buscar a los autores nacidos en un rango de años")
     print("4- Clasificar las obras de un artista por técnica")
-    print("Lab 6 \n5- Contar el número total de obras de una Nacionalidad")
+    print("5- Contar el número total de obras en un rango de fechas determinado")
+    print("6- Contar el número total de obras por paises")
+    print("Lab 6 \n7- Contar el número total de obras de una Nacionalidad")
     print("0- Salir")
 
 catalog = None
@@ -99,7 +142,7 @@ while True:
             print("No se encontraron artistas en este rango de fechas")
 
         
-    elif int(inputs[0]) == 5:
+    elif int(inputs[0]) == 7:
         nacionalidad = input("Ingrese la nacionalidad a consultar: \n")
         if mp.contains(catalog["nacionalidad"], nacionalidad):
             total = mp.get(catalog["nacionalidad"], nacionalidad)['value']
@@ -109,6 +152,18 @@ while True:
         else:
             print("No se encontró dicha nacionalidad")
     
+    
+    elif int(inputs[0]) == 5:
+        inicial = input("Ingrese la fecha inicial a consultar: \n")
+        final = input("Ingrese la fecha final a consultar: \n")
+        resultado  = controller.cronartwork(catalog, inicial, final)
+        rangoartworks(resultado[0], inicial, final)
+        print("Y el total de obras compradas es de: "+str(resultado[1]))
+
+    elif int(inputs[0])==6:
+        resultado=controller.getNacion(catalog)
+        artworksporpais(resultado)    
+        
     elif int(inputs[0]) == 4:
         nombre = str(input("Escriba el nombre del artista: "))
         lista = controller.obras_tecnica(catalog, nombre)
