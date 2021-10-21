@@ -84,10 +84,10 @@ def printMenu():
     print("\nBienvenido")
     print("1- Inicializar el catálogo")
     print("2- Cargar información en el catálogo")
-    print("3- Buscar a los autores nacidos en un rango de años")
-    print("4- Clasificar las obras de un artista por técnica")
-    print("5- Contar el número total de obras en un rango de fechas determinado")
-    print("6- Contar el número total de obras por paises")
+    print("3- Buscar a los autores nacidos en un rango de años->Req 1")
+    print("5- Contar el número total de obras en un rango de fechas determinado->Req 2")
+    print("4- Clasificar las obras de un artista por técnica->Req 3")
+    print("6- Contar el número total de obras por paises->Req 4")
     print("Lab 6 \n7- Contar el número total de obras de una Nacionalidad")
     print("0- Salir")
 
@@ -141,30 +141,14 @@ while True:
         else:
             print("No se encontraron artistas en este rango de fechas")
 
-        
-    elif int(inputs[0]) == 7:
-        nacionalidad = input("Ingrese la nacionalidad a consultar: \n")
-        if mp.contains(catalog["nacionalidad"], nacionalidad):
-            total = mp.get(catalog["nacionalidad"], nacionalidad)['value']
-            size = lt.size(total)
-            print("La cantidad de obras de la nacionalidad " + nacionalidad + 
-                    ": " + str(size))
-        else:
-            print("No se encontró dicha nacionalidad")
-    
-    
-    elif int(inputs[0]) == 5:
+    elif int(inputs[0]) == 4:
         inicial = input("Ingrese la fecha inicial a consultar: \n")
         final = input("Ingrese la fecha final a consultar: \n")
         resultado  = controller.cronartwork(catalog, inicial, final)
         rangoartworks(resultado[0], inicial, final)
         print("Y el total de obras compradas es de: "+str(resultado[1]))
 
-    elif int(inputs[0])==6:
-        resultado=controller.getNacion(catalog)
-        artworksporpais(resultado)    
-        
-    elif int(inputs[0]) == 4:
+    elif int(inputs[0]) == 5:
         nombre = str(input("Escriba el nombre del artista: "))
         lista = controller.obras_tecnica(catalog, nombre)
         
@@ -184,6 +168,23 @@ while True:
                     '\nTécnica: ' + art["Medium"] + '\nDimensiones: ' + art["Dimensions"] + '\nFecha de adquisición: ' + art["DateAcquired"]
                     +'\nDepartamento: ' + art["Department"] + '\nClasificación: ' + art["Classification"]+ '\nURL: ' + art["URL"])
 
+    elif int(inputs[0])==6:
+        resultado=controller.getNacion(catalog)
+        artworksporpais(resultado)    
+        
+    elif int(inputs[0]) == 7:
+        """
+        Esto es del Laboratorio 6
+        """
+        nacionalidad = input("Ingrese la nacionalidad a consultar: \n")
+        if mp.contains(catalog["nacionalidad"], nacionalidad):
+            total = mp.get(catalog["nacionalidad"], nacionalidad)['value']
+            size = lt.size(total)
+            print("La cantidad de obras de la nacionalidad " + nacionalidad + 
+                    ": " + str(size))
+        else:
+            print("No se encontró dicha nacionalidad")
+        
     else:
         print("Cerrando aplicación... ")
         sys.exit(0)
