@@ -39,38 +39,13 @@ operación solicitada
 
 
 # FUNCIONES PARA LA IMPRESIÓN DE RESULTADOS
-
-def rangoartista(retorno, anio1, anio2):
-    size = lt.size(retorno)
-    print("\nLa cantidad de artistas que nacieron entre " + str(anio1) + " y "
-        + str(anio2) + " es: " + str(size))
-    print("Muestra de los artistas nacidos en este rango: ")
-    if size:
-        i = 1
-        nw = lt.newList()
-        while i <= 3:
-            lt.addLast(nw, lt.getElement(retorno, i))
-            i += 1
-        i = size - 2
-        while i <= size:
-            lt.addLast(nw, lt.getElement(retorno, i))
-            i += 1
-        for x in lt.iterator(nw):
-            print("\n Nombre: " + x["DisplayName"] + "\n Año de Nacimiento: " + x["BeginDate"] + 
-                "\n Año de Fallecimiento: " + x["EndDate"] + "\n Nacionalidad: " + x["Nationality"]
-                + "\n Género: " + x["Gender"] + "\n")
-    else:
-        print("No se encontraron artistas en este rango de fechas")
-
-
-
-
 def printMenu():
     print("\nBienvenido")
     print("1- Inicializar el catálogo")
     print("2- Cargar información en el catálogo")
     print("3- Buscar a los autores nacidos en un rango de años")
-    print("Lab 6 \n4- Contar el número total de obras de una Nacionalidad")
+    print("4- Clasificar las obras de un artista por técnica")
+    print("Lab 6 \n5- Contar el número total de obras de una Nacionalidad")
     print("0- Salir")
 
 catalog = None
@@ -101,9 +76,30 @@ while True:
         inicial = int(input("Ingrese el año inicial a consultar: \n"))
         final = int(input("Ingrese el año final a consultar: \n"))
         resultado  = controller.cronartist(catalog, inicial, final)
-        rangoartista(resultado, inicial, final)
+        tamaño = lt.size(resultado)
+        print("\nLa cantidad de artistas que nacieron entre " + str(inicial) + " y "
+        + str(final) + " es: " + str(tamaño))
+        print("Muestra de los artistas nacidos en este rango: ")
+        if tamaño:
+            i = 1
+            nw = lt.newList()
+            while i <= 3:
+                lt.addLast(nw, lt.getElement(resultado, i))
+                i += 1
+            i = tamaño - 2
+            while i <= tamaño:
+                lt.addLast(nw, lt.getElement(resultado, i))
+                i += 1
+            for x in lt.iterator(nw):
+                print("\n Nombre: " + x["DisplayName"] + "\n Año de Nacimiento: " + x["BeginDate"] + 
+                    "\n Año de Fallecimiento: " + x["EndDate"] + "\n Nacionalidad: " + x["Nationality"]
+                    + "\n Género: " + x["Gender"] + "\n Bio: " + x["ArtistBio"]+ "\n Wiki QID: " + x["Wiki QID"]
+                    + "\n ULAN: " + x["ULAN"])
+        else:
+            print("No se encontraron artistas en este rango de fechas")
+
         
-    elif int(inputs[0]) == 4:
+    elif int(inputs[0]) == 5:
         nacionalidad = input("Ingrese la nacionalidad a consultar: \n")
         if mp.contains(catalog["nacionalidad"], nacionalidad):
             total = mp.get(catalog["nacionalidad"], nacionalidad)['value']
@@ -112,7 +108,27 @@ while True:
                     ": " + str(size))
         else:
             print("No se encontró dicha nacionalidad")
+    
+    elif int(inputs[0]) == 4:
+        nombre = str(input("Escriba el nombre del artista: "))
+        lista = controller.obras_tecnica(catalog, nombre)
         
+        medios = controller.medios_artista(catalog, nombre)
+        tamaño = mp.size(medios)
+        
+        obras = lt.size(controller.obras_artista(catalog, nombre))
+
+        mayor = controller.mayor_elemento(medios)
+
+        print("El artista "+str(nombre)+" tiene "+str(obras)+" en el museo")
+        print("Esas obras usan "+str(tamaño)+" tecnicas")
+        print("El medio o tecnica más usado por este artista es: "+str(mayor))
+
+        for art in lt.iterator(lista):
+            print('\nObjectID: ' + art["ObjectID"] + '\nTítulo: ' + art["Title"] + '\nFecha de la obra: ' + art["Date"] + 
+                    '\nTécnica: ' + art["Medium"] + '\nDimensiones: ' + art["Dimensions"] + '\nFecha de adquisición: ' + art["DateAcquired"]
+                    +'\nDepartamento: ' + art["Department"] + '\nClasificación: ' + art["Classification"]+ '\nURL: ' + art["URL"])
+
     else:
         print("Cerrando aplicación... ")
         sys.exit(0)

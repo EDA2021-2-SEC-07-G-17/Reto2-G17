@@ -25,6 +25,8 @@
  """
 
 
+from DISClib.DataStructures.arraylist import newList
+from DISClib.DataStructures.chaininghashtable import valueSet
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -115,7 +117,7 @@ def AddArtists(catalog, artist):
     addlistyear(catalog, artist)
 
 def AddArtistsMap(catalog, artistm):
-    mp.put(catalog['artistsMap'], artistm["ConstituentID"], artistm)
+    mp.put(catalog['artistsMap'], artistm["DisplayName"], artistm)
 
 
 def addlistmedium(catalog):
@@ -195,57 +197,6 @@ def nacionality(catalog):
 
 # Funciones de consulta
 
-def compareObjectIds(id1, id2):
-    """
-    Compara dos Objects ids de dos obras
-    """
-    if (id1 == id2):
-        return 0
-    elif id1 > id2:
-        return 1
-    else:
-        return -1
-
-def compareConstituentsID(id1, id2):
-    """
-    Compara dos ConstituentID de dos obras
-    """
-    if (id1 == id2):
-        return 0
-    elif id1 > id2:
-        return 1
-    else:
-        return -1
-
-
-def compareMedium(medio, entry):
-    """
-    Compara dos ids de libros, id es un identificador
-    y entry una pareja llave-valor
-    """
-    identry = me.getKey(entry)
-    if (medio == str(identry)):
-        return 0
-    else:
-        return -1
-
-def compareID(medio, entry):
-    identry = me.getKey(entry)
-    if (medio == str(identry)):
-        return 0
-    else:
-        return -1
-
-def compareyear(medio, entry):
-    """
-    Compara dos ids de libros, id es un identificador
-    y entry una pareja llave-valor
-    """
-    identry = me.getKey(entry)
-    if (medio == str(identry)):
-        return 0
-    else:
-        return -1
 
 def cronartist(catalog, anio1, anio2):
     years = catalog["artistDate"]
@@ -260,8 +211,117 @@ def cronartist(catalog, anio1, anio2):
         i = int(i) + 1
     return lista
 
+def id_artista(catalogo, artista):
+    total_artistas = catalogo["artistsMap"]
+    especifico = mp.get(total_artistas,artista)["value"]
+    id_artista = especifico["ConstituentID"]
+    return id_artista
+
+def obras_artista(catalogo,artista):
+    obras = mp.valueSet(catalogo["artworksMap"])
+    lista = lt.newList(datastructure="ARRAY_LIST")
+
+    for e in lt.iterator(obras):
+        codigos = e["ConstituentID"]
+        sub_codigos = codigos[1:int(len(lista)-1)]
+        ncodigos = sub_codigos.split(", ")
+
+        for h in ncodigos:
+            if artista == h:
+                lt.addLast(lista, e)
+                break
+                
+    return lista
+
+def medios_artista(catalogo, artista):
+    id_especifico = id_artista(catalogo,artista)
+    obras= obras_artista(catalogo,id_especifico)
+
+    medios = mp.newMap(lt.size(obras)+10,
+                        maptype='CHAINING',
+                        loadfactor=2.0,
+                        comparefunction=compareMedium)
+    
+    for o in lt.iterator(obras):
+        if mp.contains(medios, o["Medium"]):
+            lista = mp.get(medios, o["Medium"])['value']
+            lt.addLast(lista, o)
+            mp.put(medios, o["Medium"], lista)
+        else:
+            lista = lt.newList("ARRAY_LIST")
+            lt.addLast(lista, o)
+            mp.put(medios, o["Medium"], lista)
+
+    return medios
+
+def req_3(catalogo,artista):
+    id_artista_especifico = id_artista(catalogo,artista)
+    obras = obras_artista(catalogo,id_artista_especifico)
+
+
+    if obras:
+        lista = lt.newList(datastructure="ARRAY_LIST")
+        compareDates(obras)
+
+        i = 1
+        while i <= 3:
+            x = lt.getElement(obras,i)
+            lt.addLast(lista,x)
+            i += 1
+        
+        j = 1
+        while j <=3:
+            x = lt.lastElement(obras)
+            lt.addLast(lista, x)
+            lt.removeLast(obras)
+            j += 1
+
+        return lista
+    
+    else:
+        mensaje = "No se encontraron obras de ese autor"
+        return mensaje
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+
+def compareObjectIds(id1, id2):
+    if (id1 == id2):
+        return 0
+    elif id1 > id2:
+        return 1
+    else:
+        return -1
+
+def compareConstituentsID(id1, id2):
+    if (id1 == id2):
+        return 0
+    elif id1 > id2:
+        return 1
+    else:
+        return -1
+
+
+def compareMedium(medio, entry):
+    identry = me.getKey(entry)
+    if (medio == str(identry)):
+        return 0
+    else:
+        return -1
+
+def compareID(medio, entry):
+    identry = me.getKey(entry)
+    if (medio == str(identry)):
+        return 0
+    else:
+        return -1
+
+def compareyear(medio, entry):
+    identry = me.getKey(entry)
+    if (medio == str(identry)):
+        return 0
+    else:
+        return -1
 
 def compareDate(art1, art2):
     if art1['Date'] != '' and art2['Date'] != '':
@@ -271,13 +331,19 @@ def compareDate(art1, art2):
 def compareArtistDate(art1, art2):
     return float(art1) < float(art2)
 
+def elemento_mayor_mapa(medios):
+    mayor = 0
+    r = None
+    for n in lt.iterator(mp.keySet(medios)):
+        if lt.size(mp.get(medios, n)['value']) > mayor:
+            mayor = lt.size(mp.get(medios, n)['value'])
+            r = n
+    return r
+
 # Funciones de ordenamiento
 
-
-def compareDates(catalog, medio):
-    medios = catalog["medios"]
-    med = mp.get(medios, medio)["value"]
-    mg.sort(med, compareDate)
+def compareDates(mayor):
+    mg.sort(mayor, compareDate)
 
 def compareArtistsDates(catalog):
     years = catalog["artistDate"]

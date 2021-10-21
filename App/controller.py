@@ -80,3 +80,20 @@ def cronartist(catalog, anio1, anio2):
     model.compareArtistsDates(catalog)
     retorno = model.cronartist(catalog, anio1, anio2)
     return retorno
+
+def obras_tecnica(catalog, artista):
+    lista = model.req_3(catalog, artista)
+    return lista
+
+def medios_artista(catalog, artista):
+    mapa = model.medios_artista(catalog, artista)
+    return mapa
+
+def obras_artista(catalog, artista):
+    id_especifico = model.id_artista(catalog, artista)
+    lista  = model.obras_artista(catalog, id_especifico)
+    return lista
+
+def mayor_elemento(mapa):
+    elemento = model.elemento_mayor_mapa(mapa)
+    return elemento
