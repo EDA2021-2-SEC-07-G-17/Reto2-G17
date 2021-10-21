@@ -88,7 +88,8 @@ def printMenu():
     print("5- Contar el número total de obras en un rango de fechas determinado->Req 2")
     print("4- Clasificar las obras de un artista por técnica->Req 3")
     print("6- Contar el número total de obras por paises->Req 4")
-    print("Lab 6 \n7- Contar el número total de obras de una Nacionalidad")
+    print("7- Costo de transportar las obras de un departamento->Req 5")
+    print("Lab 6 \n8- Contar el número total de obras de una Nacionalidad")
     print("0- Salir")
 
 catalog = None
@@ -116,8 +117,8 @@ while True:
         print("Total Nacionalidades cargadas: " + str(mp.size(catalog["nacionalidad"])))
 
     elif int(inputs[0]) == 3:
-        inicial = int(input("Ingrese el año inicial a consultar: \n"))
-        final = int(input("Ingrese el año final a consultar: \n"))
+        inicial = int(input("Ingrese el año inicial a consultar: "))
+        final = int(input("Ingrese el año final a consultar: "))
         resultado  = controller.cronartist(catalog, inicial, final)
         tamaño = lt.size(resultado)
         print("\nLa cantidad de artistas que nacieron entre " + str(inicial) + " y "
@@ -142,8 +143,8 @@ while True:
             print("No se encontraron artistas en este rango de fechas")
 
     elif int(inputs[0]) == 4:
-        inicial = input("Ingrese la fecha inicial a consultar: \n")
-        final = input("Ingrese la fecha final a consultar: \n")
+        inicial = input("Ingrese la fecha inicial a consultar: ")
+        final = input("Ingrese la fecha final a consultar: ")
         resultado  = controller.cronartwork(catalog, inicial, final)
         rangoartworks(resultado[0], inicial, final)
         print("Y el total de obras compradas es de: "+str(resultado[1]))
@@ -172,11 +173,41 @@ while True:
         resultado=controller.getNacion(catalog)
         artworksporpais(resultado)    
         
-    elif int(inputs[0]) == 7:
+    elif int(inputs[0])==7:
+        departamento = input("Escriba el nombre del departamento del cual quiera saber su costo de transporte: ")
+        departamentos_total = catalog['departamento']
+        n_obras_departamento = lt.size(mp.get(departamentos_total,departamento)["value"])
+        mapa_total = controller.costos_transporte(catalog,departamento)
+        peso = mp.get(mapa_total, "peso")['value']
+        precio = mp.get(mapa_total, "precio")['value']
+        costosas = mp.get(mapa_total, "costosas")['value']
+        antiguas = mp.get(mapa_total, "antiguas")['value']
+
+        if n_obras_departamento:
+            print("El museo debe transportar "+str(n_obras_departamento)+" del departamento de "+str(departamento))
+            print("El precio estimado del transporte es de "+str(precio)+" USD")
+            print("El peso estimado de todas las obras del departamento es de: "+str(peso)+" Kg")
+            print("Las 5 obras mas antiguas a transportar son:")
+
+            for e in lt.iterator(antiguas):
+                print("\nTitulo: " + e["Title"] + "\nAutores: " + e["ConstituentID"] + 
+                        "\nClasificación: " + e["Classification"] + "\nFecha: " + e["Date"] +
+                        "\nTécnica: " + e["Medium"] + "\nDimensiones: " + e["Dimensions"] + "\nCosto de transporte: " + str(e["transporte"]))
+
+            print("Las 5 obras mas costosas de transportar son: ")
+
+            for i in lt.iterator(costosas):
+                print("\nTitulo: " + i["Title"] + "\nAutores: " + i["ConstituentID"] + 
+                        "\nClasificación: " + i["Classification"] + "\nFecha: " + i["Date"] +
+                        "\nTécnica: " + i["Medium"] + "\nDimensiones: " + i["Dimensions"] + "\nCosto de transporte: " + str(i["transporte"]))
+
+
+    
+    elif int(inputs[0]) == 8:
         """
         Esto es del Laboratorio 6
         """
-        nacionalidad = input("Ingrese la nacionalidad a consultar: \n")
+        nacionalidad = input("Ingrese la nacionalidad a consultar: ")
         if mp.contains(catalog["nacionalidad"], nacionalidad):
             total = mp.get(catalog["nacionalidad"], nacionalidad)['value']
             size = lt.size(total)

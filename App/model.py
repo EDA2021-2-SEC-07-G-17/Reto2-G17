@@ -65,7 +65,8 @@ def newCatalog():
                'artistDate': None,
                'nacionalidad': None,
                'artistsMap': None,
-               'artworksMap': None}
+               'artworksMap': None,
+               'departamento': None}
 
     catalog['artworks'] = lt.newList('SINGLE_LINKED', compareObjectIds)
     
@@ -104,6 +105,10 @@ def newCatalog():
                                    maptype='CHAINING',
                                    loadfactor=2.0,
                                    comparefunction=compareyear)
+
+    catalog['departamento'] = mp.newMap(numelements=1000,
+                                        maptype='CHAINING',
+                                        loadfactor=2.0)
     return catalog
 
 
@@ -114,6 +119,8 @@ def AddArtworks(catalog, artwork):
     lt.addLast(catalog['artworks'], artwork)
     addnacionality(catalog, artwork)
     addlistyear2(catalog,artwork)
+    addDepartamento(catalog,artwork)
+    addareas(catalog,artwork)
 
 def AddArtworksMap(catalog, artworkm):
     mp.put(catalog['artworksMap'], artworkm['ObjectID'], artworkm)
@@ -219,6 +226,30 @@ def nacionality(catalog):
                 mp.put(nac, nat, lista)            
     return catalog
 
+def addDepartamento(catalog, art):
+    dep = catalog["departamento"]
+    if mp.contains(dep, art["Department"]):
+        lista = mp.get(dep, art["Department"])["value"]
+        lt.addLast(lista, art)
+        mp.put(dep, art["Department"], lista)
+    else:
+        lst = lt.newList('ARRAY_LIST')
+        lt.addLast(lst, art)
+        mp.put(dep, art["Department"], lst)
+
+def addareas(catalog, obra):
+    if obra["Diameter (cm)"] != '':
+        area = areacirculo(obra["Diameter (cm)"])
+    elif obra["Depth (cm)"] != '' and obra["Depth (cm)"] != "0" and obra["Width (cm)"] != '' and obra["Width (cm)"] != "0" and obra["Height (cm)"] != '' and obra["Height (cm)"] != "0":
+        area = areacubo(obra["Width (cm)"], obra["Height (cm)"], obra["Depth (cm)"])
+    elif obra["Width (cm)"] != '' and obra["Width (cm)"] != "0" and obra["Height (cm)"] != '' and obra["Height (cm)"] != "0":
+        area = areacuadrado(obra["Width (cm)"], obra["Height (cm)"])
+    else:
+        area = 0
+    if obra['Weight (kg)'] != '':
+        area = area + float(obra['Weight (kg)'])
+    obra["area"] = area
+    return catalog
 
 # Funciones para creacion de datos
 
@@ -309,6 +340,90 @@ def req_3(catalogo,artista):
         mensaje = "No se encontraron obras de ese autor"
         return mensaje
 
+def cronartist(catalog, anio1, anio2):
+    years = catalog["artistDate"]
+    i = int(anio1)
+    lista = lt.newList("ARRAY_LIAT")
+    while i <= anio2:
+        i = str(i)
+        if mp.contains(catalog["artistDate"], i):
+            med = mp.get(years, i)["value"]
+            for n in lt.iterator(med):
+                lt.addLast(lista, n)
+        i = int(i) + 1
+    return lista
+
+def cronartwork(catalog, fecha1,fecha2):
+    years = catalog["artworkDate"]
+    lista = lt.newList("ARRAY_LIST")
+    new=mg.sort(mp.keySet(years), compareArtworkDate)
+    for i in lt.iterator(new):
+        if i>=fecha1 and i<=fecha2:
+            if mp.contains(years,i):
+               med = mp.get(years, i)["value"]
+               for n in lt.iterator(med):
+                   lt.addLast(lista, n)
+    compras=getPurchase(lista)               
+    return lista,compras
+
+def getPurchase(lista):
+    cont=0
+    x=1
+    while x <=lt.size(lista):
+        if "purchase" in (lt.getElement(lista,x)["CreditLine"].lower()):
+            cont+=1
+        x+=1    
+    return cont
+
+def getNacion(catalogo):
+    naciones=mp.keySet(catalogo["nacionalidad"])
+    na=lt.newList("ARRAY_LIST")
+    e=1
+    n=0
+    for i in lt.iterator(naciones):
+        if i=="Nationality unknown" or i=="":
+           n+=lt.size(lt.getElement(mp.valueSet(catalogo["nacionalidad"]),e)) 
+        else:
+           lt.addLast(na,{"pais":i,"num":lt.size(lt.getElement(mp.valueSet(catalogo["nacionalidad"]),e))})
+        e+=1
+    lt.addLast(na,{"pais":"Nationality unknown", "num":n})       
+    new=mg.sort(na,sortnacion)
+    mayores=lt.subList(new,1,10)
+    mayor=mp.get(catalogo["nacionalidad"],lt.getElement(new,1)["pais"])["value"]
+    primeras=getPrimeros(mayor)
+    ultimas=getUltimos(mayor)
+    
+    return mayores,primeras,ultimas
+
+def calcular_valor_transporte(catalogo, departamento):
+    total_departamentos = catalogo['departamento']
+    precio = 0
+    mapa = mp.newMap(5, maptype="CHAINING", loadfactor=2.0)
+    peso = 0
+    if mp.contains(total_departamentos, departamento):
+        obras = mp.get(total_departamentos, departamento)['value']
+        for art in lt.iterator(obras):
+            area = float(art['area'])
+            pr = 0
+            if area != 0:
+                pr += area * 72
+                precio += round(pr, 3)
+            else:
+                pr = 48
+                precio += pr
+            art['transporte'] = round(pr, 3)
+            if art["Weight (kg)"] != "":
+                peso += float(art["Weight (kg)"])
+    mp.put(mapa, "peso", peso)
+    mp.put(mapa, "precio", round(precio, 3))
+    compare_precio(obras)
+    ls = cinco_primeros_lista(obras)
+    mp.put(mapa, "costosas", ls)
+    compareDates(obras)
+    ls = cinco_primeros_lista(obras)
+    mp.put(mapa, "antiguas", ls)
+    return mapa
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -350,63 +465,7 @@ def compareyear(medio, entry):
     else:
         return -1
 
-def cronartist(catalog, anio1, anio2):
-    years = catalog["artistDate"]
-    i = int(anio1)
-    lista = lt.newList("ARRAY_LIAT")
-    while i <= anio2:
-        i = str(i)
-        if mp.contains(catalog["artistDate"], i):
-            med = mp.get(years, i)["value"]
-            for n in lt.iterator(med):
-                lt.addLast(lista, n)
-        i = int(i) + 1
-    return lista
-
-def cronartwork(catalog, fecha1,fecha2):
-    years = catalog["artworkDate"]
-    lista = lt.newList("ARRAY_LIST")
-    new=mg.sort(mp.keySet(years), compareArtworkDate)
-    for i in lt.iterator(new):
-        if i>=fecha1 and i<=fecha2:
-            if mp.contains(years,i):
-               med = mp.get(years, i)["value"]
-               for n in lt.iterator(med):
-                   lt.addLast(lista, n)
-    compras=getPurchase(lista)               
-    return lista,compras
-
-def getPurchase(lista):
-    cont=0
-    x=1
-    while x <=lt.size(lista):
-        if "purchase" in (lt.getElement(lista,x)["CreditLine"].lower()):
-            cont+=1
-        x+=1    
-    return cont
-    
-def getNacion(catalogo):
-    naciones=mp.keySet(catalogo["nacionalidad"])
-    na=lt.newList("ARRAY_LIST")
-    e=1
-    n=0
-    for i in lt.iterator(naciones):
-        if i=="Nationality unknown" or i=="":
-           n+=lt.size(lt.getElement(mp.valueSet(catalogo["nacionalidad"]),e)) 
-        else:
-           lt.addLast(na,{"pais":i,"num":lt.size(lt.getElement(mp.valueSet(catalogo["nacionalidad"]),e))})
-        e+=1
-    lt.addLast(na,{"pais":"Nationality unknown", "num":n})       
-    new=mg.sort(na,sortnacion)
-    mayores=lt.subList(new,1,10)
-    mayor=mp.get(catalogo["nacionalidad"],lt.getElement(new,1)["pais"])["value"]
-    primeras=getPrimeros(mayor)
-    ultimas=getUltimos(mayor)
-    
-    return mayores,primeras,ultimas 
-       
-
-
+        
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 def compareDate(art1, art2):
@@ -427,6 +486,28 @@ def elemento_mayor_mapa(medios):
             mayor = lt.size(mp.get(medios, n)['value'])
             r = n
     return r
+
+def comparar_precios(obra1, obra2):
+    return float(obra1['transporte']) > float(obra2['transporte'])
+
+def cinco_primeros_lista(lista):
+    if lt.size(lista) > 5:
+        i = 1
+        lst = lt.newList("ARRAY_LIST")
+        while i <= 5:
+            x = lt.getElement(lista, i)
+            lt.addLast(lst, x)
+            i += 1
+        return lst
+
+    else:
+        i = 1
+        lst = lt.newList("ARRAY_LIST")
+        while i <= lt.size(lista):
+            x = lt.getElement(lista, i)
+            lt.addLast(lst, x)
+            i += 1
+        return lst
 
 # Funciones de ordenamiento
 
@@ -452,5 +533,33 @@ def getPrimeros(lista):
     return lt.subList(lista, 1, 3)    
 def sortnacion(pais1,pais2):
     
-    return pais1["num"]>pais2["num"] 
+    return pais1["num"]>pais2["num"]
+
+def compare_precio(lst):
+    mg.sort(lst, comparar_precios)
+
+#Funciones de calculos
+
+def areacirculo(diametro):
+    diam = cmam(diametro)
+    area = (3.1416)*((float(diam)/2)**2)
+    return area
+
+def areacuadrado(ancho, alto):
+    anc = cmam(ancho)
+    alt = cmam(alto)
+    area = float(anc)*float(alt)
+    return area
+
+def areacubo(ancho, alto, profundidad):
+    anc = cmam(ancho)
+    alt = cmam(alto)
+    pro = cmam(profundidad)
+    area = float(anc)*float(alt)*float(pro)
+    return area
+
+def cmam(numero):
+    numero = float(numero)
+    m = numero/100
+    return m
         
