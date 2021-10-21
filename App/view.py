@@ -28,6 +28,7 @@ import controller
 from DISClib.ADT import list as lt
 assert cf
 from DISClib.ADT import map as mp
+import time
 
 
 """
@@ -85,8 +86,8 @@ def printMenu():
     print("1- Inicializar el catálogo")
     print("2- Cargar información en el catálogo")
     print("3- Buscar a los autores nacidos en un rango de años->Req 1")
-    print("5- Contar el número total de obras en un rango de fechas determinado->Req 2")
-    print("4- Clasificar las obras de un artista por técnica->Req 3")
+    print("4- Contar el número total de obras en un rango de fechas determinado->Req 2")
+    print("5- Clasificar las obras de un artista por técnica->Req 3")
     print("6- Contar el número total de obras por paises->Req 4")
     print("Lab 6 \n7- Contar el número total de obras de una Nacionalidad")
     print("0- Salir")
@@ -116,6 +117,7 @@ while True:
         print("Total Nacionalidades cargadas: " + str(mp.size(catalog["nacionalidad"])))
 
     elif int(inputs[0]) == 3:
+        tiempo_inicio=time.process_time()
         inicial = int(input("Ingrese el año inicial a consultar: \n"))
         final = int(input("Ingrese el año final a consultar: \n"))
         resultado  = controller.cronartist(catalog, inicial, final)
@@ -140,15 +142,23 @@ while True:
                     + "\n ULAN: " + x["ULAN"])
         else:
             print("No se encontraron artistas en este rango de fechas")
+        tiempo_fin=time.process_time()
+        TimeMseg=(tiempo_fin-tiempo_inicio)*1000
+        print (TimeMseg)    
 
     elif int(inputs[0]) == 4:
+        tiempo_inicio=time.process_time()
         inicial = input("Ingrese la fecha inicial a consultar: \n")
         final = input("Ingrese la fecha final a consultar: \n")
         resultado  = controller.cronartwork(catalog, inicial, final)
         rangoartworks(resultado[0], inicial, final)
         print("Y el total de obras compradas es de: "+str(resultado[1]))
+        tiempo_fin=time.process_time()
+        TimeMseg=(tiempo_fin-tiempo_inicio)*1000
+        print (TimeMseg)
 
     elif int(inputs[0]) == 5:
+        tiempo_inicio=time.process_time()
         nombre = str(input("Escriba el nombre del artista: "))
         lista = controller.obras_tecnica(catalog, nombre)
         
@@ -167,15 +177,22 @@ while True:
             print('\nObjectID: ' + art["ObjectID"] + '\nTítulo: ' + art["Title"] + '\nFecha de la obra: ' + art["Date"] + 
                     '\nTécnica: ' + art["Medium"] + '\nDimensiones: ' + art["Dimensions"] + '\nFecha de adquisición: ' + art["DateAcquired"]
                     +'\nDepartamento: ' + art["Department"] + '\nClasificación: ' + art["Classification"]+ '\nURL: ' + art["URL"])
-
+        tiempo_fin=time.process_time()
+        TimeMseg=(tiempo_fin-tiempo_inicio)*1000
+        print (TimeMseg)
     elif int(inputs[0])==6:
+        tiempo_inicio=time.process_time()
         resultado=controller.getNacion(catalog)
-        artworksporpais(resultado)    
+        artworksporpais(resultado)
+        tiempo_fin=time.process_time()
+        TimeMseg=(tiempo_fin-tiempo_inicio)*1000
+        print (TimeMseg)    
         
     elif int(inputs[0]) == 7:
         """
         Esto es del Laboratorio 6
         """
+        tiempo_inicio=time.process_time()
         nacionalidad = input("Ingrese la nacionalidad a consultar: \n")
         if mp.contains(catalog["nacionalidad"], nacionalidad):
             total = mp.get(catalog["nacionalidad"], nacionalidad)['value']
@@ -184,6 +201,9 @@ while True:
                     ": " + str(size))
         else:
             print("No se encontró dicha nacionalidad")
+        tiempo_fin=time.process_time()
+        TimeMseg=(tiempo_fin-tiempo_inicio)*1000
+        print (TimeMseg)    
         
     else:
         print("Cerrando aplicación... ")
