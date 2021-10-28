@@ -1,6 +1,6 @@
-Jaime Alfonso Ruiz- 202116525 - j.alfonsor@uniandes.edu.co
+Jaime Alfonso Ruiz- 202116525 - j.alfonsor@uniandes.edu.co->Req 4
 
-Sebastian Casanova - 202115116 - s.casanovao@uniandes.edu.co
+Sebastian Casanova - 202115116 - s.casanovao@uniandes.edu.co->Req 3
 
 #ISIS1225 - Librerias de soporte
 

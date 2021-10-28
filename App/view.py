@@ -25,6 +25,7 @@
 import config as cf
 import sys
 import controller
+from time import process_time
 from DISClib.ADT import list as lt
 assert cf
 from DISClib.ADT import map as mp
@@ -175,6 +176,7 @@ while True:
         
     elif int(inputs[0])==7:
         departamento = input("Escriba el nombre del departamento del cual quiera saber su costo de transporte: ")
+        start_time = process_time()
         departamentos_total = catalog['departamento']
         n_obras_departamento = lt.size(mp.get(departamentos_total,departamento)["value"])
         mapa_total = controller.costos_transporte(catalog,departamento)
@@ -200,6 +202,10 @@ while True:
                 print("\nTitulo: " + i["Title"] + "\nAutores: " + i["ConstituentID"] + 
                         "\nClasificación: " + i["Classification"] + "\nFecha: " + i["Date"] +
                         "\nTécnica: " + i["Medium"] + "\nDimensiones: " + i["Dimensions"] + "\nCosto de transporte: " + str(i["transporte"]))
+        
+        stop_time = process_time()
+        elapsed_time_mseg = (stop_time - start_time)*1000
+        print(str(elapsed_time_mseg))
 
 
     
